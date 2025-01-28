@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import {
     View,
     Text,
@@ -8,10 +8,24 @@ import {
     TouchableOpacity
 } from "react-native";
 
-
+import { AuthContext } from "../../context/AuthContext";
 
 // Tela de LOGIN
 export default function SignIn() {
+    
+   const {signIn} = useContext(AuthContext)
+
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState(''); 
+
+    
+async function handleLogin(){
+    if(email === '' || password === ''){return};
+
+await signIn({email, password})
+
+}
+
     return (
 
         <View style={styles.container}>
@@ -27,6 +41,8 @@ export default function SignIn() {
                     placeholder="Digite seu email"
                     style={styles.input}
                     placeholderTextColor='#f0f0f0'
+                    value={email}
+                    onChangeText={setEmail}
                 />
 
                 <TextInput
@@ -34,9 +50,11 @@ export default function SignIn() {
                     style={styles.input}
                     placeholderTextColor='#f0f0f0'
                     secureTextEntry={true}
+                    value={password}
+                    onChangeText={setPassword}
                 />
 
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity style={styles.button} onPress={handleLogin}>
                     <Text style={styles.buttonText}>Acessar</Text>
                 </TouchableOpacity>
 
