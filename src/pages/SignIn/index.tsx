@@ -5,7 +5,8 @@ import {
     StyleSheet,
     Image,
     TextInput,
-    TouchableOpacity
+    TouchableOpacity,
+    ActivityIndicator
 } from "react-native";
 
 import { AuthContext } from "../../context/AuthContext";
@@ -13,7 +14,7 @@ import { AuthContext } from "../../context/AuthContext";
 // Tela de LOGIN
 export default function SignIn() {
     
-   const {signIn} = useContext(AuthContext)
+   const {signIn, loadingAuth} = useContext(AuthContext)
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState(''); 
@@ -55,7 +56,13 @@ await signIn({email, password})
                 />
 
                 <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                    { loadingAuth ? (
+                        <ActivityIndicator size={25} color='#fff'/>
+                    ) : (
+
                     <Text style={styles.buttonText}>Acessar</Text>
+                    )}
+
                 </TouchableOpacity>
 
             </View>
