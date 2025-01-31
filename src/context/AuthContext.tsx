@@ -87,6 +87,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
 
             const data = { ...response.data }
+            // console.log(data)
+            
             await AsyncStorag.setItem('@tar', JSON.stringify(data))
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
