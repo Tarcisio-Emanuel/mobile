@@ -7,14 +7,11 @@ import {
   TextInput,
   Modal,
 } from 'react-native'
-
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native'
-
 import { Feather } from '@expo/vector-icons'
 
 import { api } from '../../services/api'
 import { ModalPicker } from '../../components/ModalPicker'
-
 
 type RouteDetailParams = {
   Order: {
@@ -28,57 +25,71 @@ export type CategoryProps = {
   name: string;
 }
 
+type ProductProps = {
+  id: string;
+  name: string;
+}
+
 type OrderRouteProps = RouteProp<RouteDetailParams, 'Order'>;
 
 export default function Order() {
   const route = useRoute<OrderRouteProps>();
   const navigation = useNavigation();
-
+  
   const [category, setCategory] = useState<CategoryProps[] | []>([]);
-  const [categorySelected, setCategorySelected] = useState<CategoryProps>();
-  const [amount, setAmount] = useState('1');
+  const [categorySelected, setCategorySelected] = useState<CategoryProps | undefined>();
   const [modalCategortVisible, setModalCategortVisible] = useState(false);
-
+  
+  const [products, setProducts] = useState<ProductProps[] | []>([])
+  const [productSelected, setProductSelected] = useState<ProductProps | undefined>()
+  const [modalProductVisible, setModalProductVisible] = useState(false);
+  
+  const [amount, setAmount] = useState('1');
 
   useEffect(() => {
-
     async function loadInfo() {
 
       const response = await api.get('/category')
-      console.log(response.data)
-
+      // console.log(response.data)
       setCategory(response.data);
       setCategorySelected(response.data[0])
-    }
 
+    }
     loadInfo();
   }, [])
 
 
+  useEffect(() => {
 
-  async function handleCloseOrder() {
+    async function loadProductd() {     
+      const response = await api.get('/category/product', {
+        params:{
+          category_id: categorySelected?.id
+        }
+      })
+      setProducts(response.data)
+      setProductSelected(response.data[0])        
+    }
+    loadProductd();
+  }, [categorySelected])
+
+
+ async function handleCloseOrder() {
     try {
-
       await api.delete('/order', {
         params: {
           order_id: route.params?.order_id
         }
       })
-
-
       navigation.goBack();
-
     } catch (err) {
       console.log(err)
     }
-
   }
-
 
 function handleChaneCategory(item: CategoryProps){
 setCategorySelected(item)
 }
-
 
 
   return (
@@ -92,7 +103,6 @@ setCategorySelected(item)
       </View>
 
       {category.length !== 0 && (
-
         <TouchableOpacity style={styles.input}
           onPress={() => setModalCategortVisible(true)}
         >
@@ -100,12 +110,15 @@ setCategorySelected(item)
             {categorySelected?.name}
           </Text>
         </TouchableOpacity>
-
       )}
 
-      <TouchableOpacity style={styles.input}>
-        <Text style={{ color: '#FFF' }}>Pizza de calabresa</Text>
+      {products.length !== 0 && (
+        <TouchableOpacity style={styles.input}>
+        <Text style={{ color: '#FFF' }}>
+          {productSelected?.name}
+        </Text>
       </TouchableOpacity>
+      )}
 
       <View style={styles.qtdContainer}>
         <Text style={styles.qtdText}>Quantidade</Text>
@@ -128,7 +141,6 @@ setCategorySelected(item)
         </TouchableOpacity>
       </View>
 
-
       <Modal
         transparent={true}
         visible={modalCategortVisible}
@@ -142,6 +154,7 @@ setCategorySelected(item)
         />
 
       </Modal>
+
     </View>
   )
 }
