@@ -30,21 +30,31 @@ type ProductProps = {
   name: string;
 }
 
+type ItemsProprs = {
+id: string;
+product_id: string;
+name: string;
+amaunt: string | number;
+
+}
+
 type OrderRouteProps = RouteProp<RouteDetailParams, 'Order'>;
 
 export default function Order() {
   const route = useRoute<OrderRouteProps>();
   const navigation = useNavigation();
-  
+
   const [category, setCategory] = useState<CategoryProps[] | []>([]);
   const [categorySelected, setCategorySelected] = useState<CategoryProps | undefined>();
   const [modalCategortVisible, setModalCategortVisible] = useState(false);
-  
+
   const [products, setProducts] = useState<ProductProps[] | []>([])
   const [productSelected, setProductSelected] = useState<ProductProps | undefined>()
   const [modalProductVisible, setModalProductVisible] = useState(false);
-  
+
   const [amount, setAmount] = useState('1');
+  const [items, setItems] = useState<ItemsProprs[]>([]);
+
 
   useEffect(() => {
     async function loadInfo() {
@@ -61,20 +71,20 @@ export default function Order() {
 
   useEffect(() => {
 
-    async function loadProductd() {     
+    async function loadProductd() {
       const response = await api.get('/category/product', {
-        params:{
+        params: {
           category_id: categorySelected?.id
         }
       })
       setProducts(response.data)
-      setProductSelected(response.data[0])        
+      setProductSelected(response.data[0])
     }
     loadProductd();
   }, [categorySelected])
 
 
- async function handleCloseOrder() {
+  async function handleCloseOrder() {
     try {
       await api.delete('/order', {
         params: {
@@ -87,9 +97,14 @@ export default function Order() {
     }
   }
 
-function handleChaneCategory(item: CategoryProps){
-setCategorySelected(item)
-}
+  function handleChaneCategory(item: CategoryProps) {
+    setCategorySelected(item)
+  }
+
+  function handleChaneProduct(item: CategoryProps) {
+    setProductSelected(item);
+
+  }
 
 
   return (
@@ -113,11 +128,11 @@ setCategorySelected(item)
       )}
 
       {products.length !== 0 && (
-        <TouchableOpacity style={styles.input}>
-        <Text style={{ color: '#FFF' }}>
-          {productSelected?.name}
-        </Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.input} onPress={() => setModalProductVisible(true)}>
+          <Text style={{ color: '#FFF' }}>
+            {productSelected?.name}
+          </Text>
+        </TouchableOpacity>
       )}
 
       <View style={styles.qtdContainer}>
@@ -154,6 +169,23 @@ setCategorySelected(item)
         />
 
       </Modal>
+
+      {/* xxxxxxxxxxxxxxxxxxxxxxxxx */}
+      <Modal
+        transparent={true}
+        visible={modalProductVisible}
+        animationType='fade'
+      >
+        <ModalPicker
+          handleCloseModal={() => setModalProductVisible(false)}
+          options={products}
+          selectedItem={handleChaneProduct}
+        />
+
+
+
+      </Modal>
+
 
     </View>
   )
